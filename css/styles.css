@@ -1,0 +1,235 @@
+body.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
+.dark-mode .card {
+  background-color: #333;
+  color: white;
+}
+
+.dark-mode .form-control {
+  background-color: #555;
+  color: white;
+  border-color: #444;
+}
+
+.dark-mode .btn-success {
+  background-color: #28a745;
+}
+
+.row .form-control {
+  max-width: 200px;
+}
+
+.row > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.results-list {
+  position: absolute;
+  width: auto;
+  max-height: 220px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+input.form-control.form-control-sm {
+  height: 20px;
+  min-height: auto;
+}
+
+.fw-bold {
+  font-size: 13px;
+}
+
+.card {
+  flex: 1;
+  min-width: 250px;
+}
+
+.card-body p {
+  margin: 0;
+}
+
+.card-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 5px;
+  align-items: center;
+  padding: 16px 4px;
+  position: relative;
+}
+
+/* .actions {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  display: flex;
+} */
+
+.card-body button, .card-body a {
+  margin: 4px 0px 4px 4px;
+  height: 22px;
+  width: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-body .text-start {
+  padding: 0px 10px;
+}
+
+.btn-sm {
+  font-size: 0.8rem;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.range-graphic {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background: #e0e0e0;
+  border-radius: 10px;
+}
+
+.range-line {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 5px;
+  background-color: green;
+}
+
+.range-text {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #000;
+}
+
+/* Modal Steps */
+.modal-body .step:not(.active) {
+  display: none;
+}
+
+.modal-body .step.active {
+  display: block;
+}
+
+/* Dark Mode Modal Style */
+.dark-mode .modal-content {
+  background-color: #333;
+  color: white;
+}
+
+.dark-mode .modal-header {
+  border-bottom: 1px solid #444;
+}
+
+.dark-mode .modal-title {
+  color: white;
+}
+
+.dark-mode .modal-footer {
+  border-top: 1px solid #444;
+}
+
+.dark-mode .form-control {
+  background-color: #444;
+  border: 1px solid #555;
+  color: white;
+}
+
+.step .card {
+  border: none;
+}
+
+.summary {
+  display: flex;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: start;
+  padding-left: 20px;
+}
+
+.card-body * {
+  font-size: 13px;
+}
+
+.eye_handler {
+  transition: all 0.3s ease;
+}
+
+.summary p {
+  display: flex; /* Ativa o flexbox */
+  justify-content: space-between; /* Espaço entre label e valor */
+  align-items: center; /* Alinha verticalmente no centro */
+  width: 100%; /* Ocupa toda a largura */
+}
+
+.summary span {
+  margin: 0; /* Remove margens extras */
+}
+
+*[data-bs-toggle] {
+  cursor: pointer;
+}
+
+.tooltip {
+  font-size: 10px; /* Ajuste para o tamanho desejado */
+}
+
+div[data-up]:before {
+  content: "▲";
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 10px;
+  color: #28a745 !important;
+}
+
+div[data-down]:before {
+  content: "▼";
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  font-size: 10px;
+  color: #dc3545 !important;
+}
+
+div[data-up],
+div[data-down] {
+  position: relative;
+}
+
+.input-group img {
+  width: 38px;
+  height: 38px;
+  align-self: center;
+}
+
+.is-invalid {
+  border-color: red;
+}
+
+#totalPool {
+    margin: 0px 10px;
+    font-size: 12px;
+}
+
+.pool-site  img{
+    height: 20px;
+  width: 20px;
+  border-radius: 3px;
+}
