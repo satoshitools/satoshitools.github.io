@@ -56,10 +56,6 @@ async function addPoolToList(poolData, index, priceData) {
     priceCurrency2 > 0 ? priceCurrency1 / priceCurrency2 : 0
   ).toFixed(2);
 
-  const rangeStatus =
-    currentRange >= poolData.minRange && currentRange <= poolData.maxRange;
-  const rangeIcon = rangeStatus ? "🟢" : "🔴";
-
   const totalFeesUsd =
     poolData.feeTokens1 * priceCurrency1 + poolData.feeTokens2 * priceCurrency2;
   const poolAssets =
@@ -185,32 +181,38 @@ async function addPoolToList(poolData, index, priceData) {
         </div>
         <div class="text-start" style="width: 25%">
             <p class="mb-0 d-flex justify-content-between eye_handler">
-            <span class="fw-bold">Início:</span>
-            <span>${startDate.toLocaleDateString(
-              "pt-BR"
-            )} (${diffDays} dias)</span>
+                <span class="fw-bold">Início:</span>
+                <span>${startDate.toLocaleDateString(
+                  "pt-BR"
+                )} (${diffDays} dias)</span>
             </p>
 
             <p class="mb-0 d-flex justify-content-between eye_handler">
-            <span class="fw-bold">Investido:</span>
-            <span>$${poolData.dollars} + $${poolData.fee}</span>
+                <span class="fw-bold">Investido:</span>
+                <span>$${poolData.dollars} + $${poolData.fee}</span>
             </p>
 
             <p class="mb-0 d-flex justify-content-between">
-            <span class="fw-bold">Range:</span>
-            <span>
-                <span
-                style="font-size: 10px; margin: 0px 2px"
-                class="text-nowrap"
-                data-bs-toggle="tooltip"
-                title="Preço Atual: ${currentRange}"
-                >
-                ${rangeIcon}
+                <span class="fw-bold">Range:</span>
+                <span class="range-data">
+                    <span
+                        class="bar-container"
+                        data-index="${index}"
+                        data-current="${currentRange}"
+                        data-min="${poolData.minRange}"
+                        data-max="${poolData.maxRange}"
+                    >
+                        <span class="bar-fill" data-bs-toggle="tooltip" title="De ${
+                          poolData.minRange
+                        } até ${poolData.maxRange}"></span>
+                        <span class="price-marker" data-bs-toggle="tooltip" title="Atual: ${currentRange}"></span>
+
+                        <span class="price-range eye_handler">
+                            <span class="price">${poolData.minRange}</span>
+                            <span class="price">${poolData.maxRange}</span>
+                        </span>
+                    </span>
                 </span>
-                <span class="eye_handler">${poolData.minRange} - ${
-    poolData.maxRange
-  }</span>
-            </span>
             </p>
         </div>
 
@@ -330,10 +332,10 @@ function addUpdatesInputListeners(poolElement) {
       const poolType = input.dataset.type;
       const value = input.value;
 
-      let pools = JSON.parse(localStorage.getItem("pools")) || [];
+      let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
 
       // Atualiza o valor específico sem afetar os outros campos
-      pools[poolIndex][poolType] = value;
+        pools.list[poolIndex][poolType] = value;
       localStorage.setItem("pools", JSON.stringify(pools));
     });
   });
@@ -353,9 +355,9 @@ async function loadPools(status = null) {
     }
     status = window.poolStatus;
   }
-  let pools = JSON.parse(localStorage.getItem("pools")) || [];
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
 
-  const currencies = pools
+  const currencies = pools.list
     .map((pool) => [pool.currency1.id, pool.currency2.id])
     .flat();
   const uniqueCurrencies = [...new Set(currencies)];
@@ -365,7 +367,7 @@ async function loadPools(status = null) {
   }
   window.poolStatus = status;
 
-  pools = pools
+  pools = pools.list
     .map((pool, index) => {
       pool.id = index;
       return pool;
@@ -396,6 +398,39 @@ async function loadPools(status = null) {
       new bootstrap.Tooltip(tooltipTriggerEl);
     });
   }, 100);
+
+  mountPoolRanges();
+}
+
+function mountPoolRanges() {
+  const bars = document.querySelectorAll(".bar-container");
+
+  if (!bars) return;
+  bars.forEach((bar) => {
+    const currentPrice = parseFloat(bar.getAttribute("data-current"));
+    const maxPrice = parseFloat(bar.getAttribute("data-max"));
+    const minPrice = parseFloat(bar.getAttribute("data-min"));
+
+    const rangeMin = minPrice - minPrice * 0.1;
+    const rangeMax = maxPrice + maxPrice * 0.1;
+    const range = rangeMax - rangeMin;
+
+    const barFill = bar.querySelector(".bar-fill");
+    const priceMarker = bar.querySelector(".price-marker");
+    const barWidth = bar.clientWidth;
+
+    // Centralizando o marcador de preço
+    const currentPos = ((currentPrice - rangeMin) / range) * barWidth;
+    priceMarker.style.left = currentPos <= barWidth ? `${currentPos}px` : `${barWidth}px`;
+
+    // Definindo a largura da barra verde e centralizando
+    const barFillWidth = ((maxPrice - minPrice) / range) * barWidth;
+    barFill.style.width = `${barFillWidth}px`;
+
+    if (currentPrice < minPrice || currentPrice > maxPrice) {
+      bar.setAttribute("data-out", true);
+    }
+  });
 }
 
 // Remove uma pool do localStorage e da lista
@@ -403,30 +438,30 @@ function deletePool(index) {
   if (!confirm("Tem certeza que deseja excluir esta pool?")) {
     return;
   }
-  let pools = JSON.parse(localStorage.getItem("pools")) || [];
-  pools.splice(index, 1); // Remove o item pelo índice
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  pools.list.splice(index, 1); // Remove o item pelo índice
   localStorage.setItem("pools", JSON.stringify(pools)); // Atualiza o localStorage
   loadPools(); // Recarrega a lista
   deleteAllTooltips();
 }
 
 function archivePool(index, priceCurrency1, priceCurrency2) {
-  let pools = JSON.parse(localStorage.getItem("pools")) || [];
-  let str = pools[index].status ? "arquivar" : "desarquivar";
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  let str = pools.list[index].status ? "arquivar" : "desarquivar";
 
   if (!confirm(`Tem certeza que deseja ${str} esta pool?`)) {
     return;
   }
-  if (pools[index].status) {
-    pools[index].priceCurrency1 = priceCurrency1;
-    pools[index].priceCurrency2 = priceCurrency2;
+  if (pools.list[index].status) {
+    pools.list[index].priceCurrency1 = priceCurrency1;
+    pools.list[index].priceCurrency2 = priceCurrency2;
   } else {
-    delete pools[index].priceCurrency1;
-    delete pools[index].priceCurrency2;
+    delete pools.list[index].priceCurrency1;
+    delete pools.list[index].priceCurrency2;
   }
-  pools[index].status = !pools[index].status;
+  pools.list[index].status = !pools.list[index].status;
   localStorage.setItem("pools", JSON.stringify(pools)); // Atualiza o localStorage
-  clickToPool(!pools[index].status); // Recarrega a lista
+  clickToPool(!pools.list[index].status); // Recarrega a lista
   deleteAllTooltips();
 }
 

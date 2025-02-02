@@ -1,6 +1,19 @@
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.container {
+  flex: 1;
+}
+
 body.dark-mode {
   background-color: #121212;
   color: white;
+}
+
+.dark-mode .text-muted {
+  color: white !important;
 }
 
 .dark-mode .card {
@@ -69,7 +82,8 @@ input.form-control.form-control-sm {
   display: flex;
 } */
 
-.card-body button, .card-body a {
+.card-body button,
+.card-body a {
   margin: 4px 0px 4px 4px;
   height: 22px;
   width: 22px;
@@ -224,12 +238,97 @@ div[data-down] {
 }
 
 #totalPool {
-    margin: 0px 10px;
-    font-size: 12px;
+  margin: 0px 10px;
+  font-size: 12px;
 }
 
-.pool-site  img{
-    height: 20px;
+.pool-site img {
+  height: 20px;
   width: 20px;
   border-radius: 3px;
+}
+
+.bar-container {
+  position: relative;
+  width: 140px;
+  height: 6px;
+  background: #ccc;
+  border-radius: 6px;
+  margin: 0px;
+  margin-top: 6px;
+}
+.bar-fill {
+  position: absolute;
+  height: 100%;
+  background: #28a745;
+  border-radius: 10px;
+  transform: translateX(-50%);
+  left: 50%;
+}
+.price-marker {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #6c757d;
+  top: -2px;
+  transform: translateX(-50%);
+}
+
+.range-data {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  margin-left: 10px;
+  justify-content: center;
+  align-items: end;
+  position: relative;
+}
+
+.range-data .price {
+  font-size: 10px;
+}
+
+.range-data .price-range {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.bar-container[data-out="true"] .bar-fill {
+  background: #dc3545 !important;
+}
+
+.separator {
+  background: #6c757d;
+  height: 20px;
+  width: 1px;
+  display: inline-block;
+  margin: auto 20px;
+}
+
+.actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media screen and (max-width: 1024px) {
+  .header {
+    align-items: start !important;
+  }
+  .actions-bar {
+    flex-flow: column-reverse;
+    align-items: end;
+  }
+  .separator {
+    display: none;
+  }
+  .card {
+    overflow-x: auto;
+  }
+  .card .card-body {
+    width: 1200px;
+  }
 }

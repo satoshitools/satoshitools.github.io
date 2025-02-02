@@ -1,14 +1,14 @@
 // Salva a pool no localStorage
 function savePoolToLocalStorage(poolData) {
-  let pools = JSON.parse(localStorage.getItem("pools")) || [];
-  pools.push(poolData);
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  pools.list.push(poolData);
   localStorage.setItem("pools", JSON.stringify(pools));
 }
 
 async function updatePrices() {
-    let pools = JSON.parse(localStorage.getItem("pools")) || [];
+    let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
 
-  const currencies = pools
+  const currencies = pools.list
     .map((pool) => [pool.currency1.id, pool.currency2.id])
     .flat();
   const uniqueCurrencies = [...new Set(currencies)];

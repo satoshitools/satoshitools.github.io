@@ -1,0 +1,9 @@
+@media screen and (max-width: 1024px) {
+  footer > div {
+    flex-flow: column;
+  }
+
+  footer > div > div {
+    flex-flow: column;
+  }
+}
