@@ -97,8 +97,86 @@
             </button>
           </span>
         </div>
+
+        <div>
+          <a
+            href="https://github.com/satoshitools/satoshitools.github.io"
+            target="_blank"
+            class="btn btn-outline-secondary btn-sm p-1"
+          >
+            <i class="bi bi-github"></i>
+          </a>
+
+          <a
+            href="https://github.com/satoshitools/satoshitools.github.io"
+            target="_blank"
+            class="btn btn-outline-secondary btn-sm p-1"
+            data-bs-toggle="modal"
+            data-bs-target="#contactModal"
+          >
+            <i class="bi bi-envelope"></i>
+          </a>
+        </div>
       </div>
     </footer>
+
+    <div
+      class="modal fade"
+      id="contactModal"
+      tabindex="-1"
+      aria-labelledby="contactModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="contactModalLabel">Entre em Contato</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Fechar"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form action="https://formsubmit.co/vilarinhoti@gmail.com" method="POST">
+              <input type="hidden" name="_captcha" value="false" />
+              <!-- Desativa captcha -->
+              <input
+                type="hidden"
+                name="_next"
+                value="https://satoshitools.github.io?sendedEmail"
+              />
+              <!-- Redirecionamento pós-envio -->
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Seu Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label for="message" class="form-label">Mensagem</label>
+                <textarea
+                  class="form-control"
+                  id="message"
+                  name="message"
+                  rows="4"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn btn-success w-100">
+                Enviar
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
       function copyToClipboard(id) {
