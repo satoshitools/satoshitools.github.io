@@ -58,15 +58,30 @@ async function addPoolToList(poolData, index, priceData) {
 
   const totalFeesUsd =
     poolData.feeTokens1 * priceCurrency1 + poolData.feeTokens2 * priceCurrency2;
+
+  const entryTokens1 = parseFloat(poolData.tokens1) + (poolData.changes || []).reduce((acc, change) => {
+    return change.type === 'add' ? acc + parseFloat(change.tokens1) : acc - parseFloat(change.tokens1);
+  }, 0);
+  const entryTokens2 = parseFloat(poolData.tokens2) + (poolData.changes || []).reduce((acc, change) => {
+    return change.type === 'add' ? acc + parseFloat(change.tokens2) : acc - parseFloat(change.tokens2);
+  }, 0);
+
   const poolAssets =
-    poolData.tokens1 * priceCurrency1 + poolData.tokens2 * priceCurrency2;
+    entryTokens1 * priceCurrency1 + entryTokens2 * priceCurrency2;
   const poolCurrentAssets =
     poolData.currentTokens1 * priceCurrency1 +
     poolData.currentTokens2 * priceCurrency2;
-  const appreciation = poolCurrentAssets - poolData.dollars;
+
+  const sumOfChanges = poolData.changes ? poolData.changes.reduce((acc, change) => {
+    return acc + (change.type === 'add' ? parseFloat(change.dollar) : parseFloat(change.dollar) * -1);
+  }, 0) : 0;
+
+  const totalEntry = parseFloat(poolData.dollars) - parseFloat(poolData.fee) + sumOfChanges
+  const appreciation = poolCurrentAssets - totalEntry;
 
   const divergenceLoss = poolCurrentAssets - poolAssets;
   const pnl = totalFeesUsd - divergenceLoss * -1 - poolData.fee;
+
 
   const getIcon = (value) => (value >= 0 ? "▲" : "▼");
 
@@ -92,10 +107,14 @@ async function addPoolToList(poolData, index, priceData) {
   }
 
   const startDate = new Date(poolData.startDate);
-  const today = new Date();
+  let endDate = new Date();
+
+  if (poolData.archivedDate && !poolData.status) {
+    endDate = new Date(poolData.archivedDate);
+  }
 
   // Calcula a diferença em milissegundos
-  const diffTime = today - startDate;
+  const diffTime = endDate - startDate;
 
   // Converte a diferença para dias
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -116,6 +135,20 @@ async function addPoolToList(poolData, index, priceData) {
                 <i class="bi bi-trash-fill"></i>
             </button>`
             }
+
+            ${
+                poolData.status
+                  ? `<button
+                  class="btn btn-sm btn-outline-primary delete-pool"
+                  data-index="${index}"
+                  onclick="changeLiquid(${index})"
+                  data-bs-toggle="tooltip"
+                  title="Adicionar ou remover liquidez"
+              >
+                  <i class="bi bi-plus-slash-minus"></i>
+              </button>`
+                  : ""
+              }
 
             <button
                 class="btn btn-sm btn-outline-warning archive-pool"
@@ -161,19 +194,23 @@ async function addPoolToList(poolData, index, priceData) {
         </div>
 
         <div class="text-center eye_handler" style="width: 10%">
-            <div>
-            <img
-                src="${poolData.currency1.thumb}"
-                alt="${poolData.currency1.symbol}"
-                class="rounded-circle me-1"
-                style="width: 24px; height: 24px"
-            />
-            <img
-                src="${poolData.currency2.thumb}"
-                alt="${poolData.currency2.symbol}"
-                class="rounded-circle"
-                style="width: 24px; height: 24px"
-            />
+            <div style="display: flex;justify-content: center;">
+              <a href="https://www.coingecko.com/pt/moedas/${poolData.currency1.id}" target="_blank">
+                <img
+                    src="${poolData.currency1.thumb}"
+                    alt="${poolData.currency1.symbol}"
+                    class="rounded-circle me-1"
+                    style="width: 24px; height: 24px"
+                />
+              </a>
+              <a href="https://www.coingecko.com/pt/moedas/${poolData.currency2.id}" target="_blank">
+                <img
+                    src="${poolData.currency2.thumb}"
+                    alt="${poolData.currency2.symbol}"
+                    class="rounded-circle"
+                    style="width: 24px; height: 24px"
+                />
+              </a>
             </div>
             <p class="fw-bold mb-0" style="font-size: 11px">
             ${currency1}/${currency2}
@@ -189,7 +226,7 @@ async function addPoolToList(poolData, index, priceData) {
 
             <p class="mb-0 d-flex justify-content-between eye_handler">
                 <span class="fw-bold">Investido:</span>
-                <span>$${poolData.dollars} + $${poolData.fee}</span>
+                <span>$${totalEntry.toFixed(2)}</span>
             </p>
 
             <p class="mb-0 d-flex justify-content-between">
@@ -219,10 +256,10 @@ async function addPoolToList(poolData, index, priceData) {
         <div class="text-start" style="width: 15%">
             <p class="mb-1 fw-bold">Tokens Investidos</p>
             <p class="mb-1">
-            ${poolData.tokens1} <span class="eye_handler">${currency1}</span>
+            ${entryTokens1.toFixed(7)} <span class="eye_handler">${currency1}</span>
             </p>
             <p class="mb-0">
-            ${poolData.tokens2} <span class="eye_handler">${currency2}</span>
+            ${entryTokens2.toFixed(7)} <span class="eye_handler">${currency2}</span>
             </p>
         </div>
         <div class="text-start" style="width: 15%">
@@ -315,13 +352,51 @@ async function addPoolToList(poolData, index, priceData) {
             </p>
         </div>
     </div>
+    ${(poolData.changes || []).length > 0 ? '<hr>' : ''}
+    <div class="pool-changes">
+        ${
+          poolData.changes
+          ? poolData.changes.map((change, i) => {
+            return `
+               <div class="d-flex">
+                <span class="start">
+                  Iniciou com
+                  <b>${poolData.tokens1} ${poolData.currency1.symbol}</b> e <b>${poolData.tokens2} ${poolData.currency2.symbol}</b>
+                  no dia
+                  ${new Date(poolData.startDate).toLocaleDateString('pt-BR')} no total de
+                  $${parseFloat(poolData.dollars).toFixed(2)} dolares, pagando $${parseFloat(poolData.fee).toFixed(2)} em taxas
+                </span>
+              </div>
+
+              <div class="d-flex">
+                <button
+                  class="btn btn-sm btn-outline-danger delete-pool"
+                  onclick="deleteChange(${index}, ${i})"
+                  data-bs-toggle="tooltip"
+                  title="Excluir mudança"
+                >
+                  <i class="bi bi-trash-fill"></i>
+                </button>
+
+                <span>
+                  ${change.type == 'add' ? 'Adicionou' : 'Removeu'}
+                  <b>${change.tokens1} ${poolData.currency1.symbol}</b> e <b>${change.tokens2} ${poolData.currency2.symbol}</b>
+                  no dia
+                  ${new Date(change.date).toLocaleDateString('pt-BR')} no total de
+                  $${parseFloat(change.dollar).toFixed(2)} dolares
+                </span>
+              </div>
+            `;
+          }).join('') : ''
+        }
+    </div>
     `;
 
   addUpdatesInputListeners(poolElement);
 
   window.poolList.appendChild(poolElement);
 
-  return pnl;
+  return { pnl, poolCurrentAssets };
 }
 
 function addUpdatesInputListeners(poolElement) {
@@ -374,8 +449,15 @@ async function loadPools(status = null) {
     })
     .filter((pool) => pool.status === status);
 
+  if (!status) {
+    pools = pools.sort((a, b) => {
+      return new Date(b.startDate) - new Date(a.startDate);
+    });
+  }
+
   window.poolList.innerHTML = "";
   let totalPool = 0;
+  let currentTotal = 0;
 
   for (let index = 0; index < pools.length; index++) {
     const poolValue = await addPoolToList(
@@ -383,12 +465,13 @@ async function loadPools(status = null) {
       pools[index].id,
       window.priceData
     );
-    totalPool += poolValue;
+    totalPool += poolValue.pnl;
+    currentTotal += poolValue.poolCurrentAssets;
   }
   document.getElementById("totalPool").innerHTML =
     totalPool > 0
-      ? `Resumo: <span class="text-success">▲ $${totalPool.toFixed(2)}</span>`
-      : `Resumo: <span class="text-danger">▼ $${totalPool.toFixed(2)}</span>`;
+      ? `Resumo: $${currentTotal.toFixed(2)} (<span class="text-success">▲ $${totalPool.toFixed(2)}</span>)`
+      : `Resumo: $${currentTotal.toFixed(2)} (<span class="text-danger">▼ $${totalPool.toFixed(2)}</span>)`;
 
   setTimeout(() => {
     const tooltipTriggerList = Array.from(
@@ -421,7 +504,10 @@ function mountPoolRanges() {
 
     // Centralizando o marcador de preço
     const currentPos = ((currentPrice - rangeMin) / range) * barWidth;
-    priceMarker.style.left = currentPos <= barWidth ? `${currentPos}px` : `${barWidth}px`;
+    priceMarker.style.left = currentPos <= barWidth ? `${currentPos}px` : `calc(${barWidth}px + 4px)`;
+    if (currentPos < 0) {
+      priceMarker.style.left = "-4px";
+    }
 
     // Definindo a largura da barra verde e centralizando
     const barFillWidth = ((maxPrice - minPrice) / range) * barWidth;
@@ -445,6 +531,18 @@ function deletePool(index) {
   deleteAllTooltips();
 }
 
+function deleteChange(index, changeIndex) {
+  if (!confirm("Tem certeza que deseja excluir esta mudança?")) {
+    return;
+  }
+
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  pools.list[index].changes.splice(changeIndex, 1);
+  localStorage.setItem("pools", JSON.stringify(pools)); // Atualiza o localStorage
+  loadPools(); // Recarrega a lista
+  deleteAllTooltips();
+}
+
 function archivePool(index, priceCurrency1, priceCurrency2) {
   let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
   let str = pools.list[index].status ? "arquivar" : "desarquivar";
@@ -460,6 +558,8 @@ function archivePool(index, priceCurrency1, priceCurrency2) {
     delete pools.list[index].priceCurrency2;
   }
   pools.list[index].status = !pools.list[index].status;
+  pools.list[index].archivedDate = pools.list[index].status ? null : new Date().toString();
+
   localStorage.setItem("pools", JSON.stringify(pools)); // Atualiza o localStorage
   clickToPool(!pools.list[index].status); // Recarrega a lista
   deleteAllTooltips();
@@ -511,3 +611,45 @@ function deleteAllTooltips() {
     tooltip.remove();
   });
 }
+
+function changeLiquid(index) {
+  window.liquidModal = new bootstrap.Modal(
+    document.getElementById("liquidModal")
+  );
+
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  let pool = pools.list[index];
+
+  updateStep(0, 'liquid-');
+
+  document.getElementById('poolName').innerText = `${pool.currency1.symbol}/${pool.currency2.symbol}`;
+  document.getElementById('poolIndex').value = index;
+  document.getElementById('token1').innerText = pool.currency1.symbol;
+  document.getElementById('token2').innerText = pool.currency2.symbol;
+
+  window.liquidModal.show();
+}
+
+document.getElementById("saveLiquid").addEventListener("click", function (e) {
+
+  let pools = JSON.parse(localStorage.getItem("pools")) || { list: [] };
+  let index = document.getElementById('poolIndex').value;
+  let pool = pools.list[index];
+
+  if (pool.changes === undefined) {
+    pool.changes = [];
+  }
+  pool.changes.push({
+    type: document.getElementById('type').value,
+    date: new Date().toString(),
+    dollar: document.getElementById('changeDollar').value,
+    tokens1: parseFloat(document.getElementById('changeCurrency1').value),
+    tokens2: parseFloat(document.getElementById('changeCurrency2').value)
+  });
+
+  pools.list[index] = pool;
+  localStorage.setItem("pools", JSON.stringify(pools));
+
+  loadPools();
+  window.liquidModal.hide();
+});

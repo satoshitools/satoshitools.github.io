@@ -364,6 +364,128 @@
           </div>
         </div>
       </div>
+
+      <!-- Modal de liquidez -->
+      <div
+        class="modal fade"
+        id="liquidModal"
+        tabindex="-1"
+        aria-labelledby="loquidModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="loquidModalLabel">
+                Alterar liquidez (<span id="poolName"></span>)
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <form id="poolLiquidForm" class="modal-body">
+              <input type="hidden" id="poolIndex" name="poolIndex" />
+              <!-- Modal Steps (divisões por etapas) -->
+              <div id="liquid-step-0" class="step active">
+                <div class="card p-3">
+                  <div class="mb-3">
+                    <label for="type" class="form-label"
+                      >Tipo de operação</label
+                    >
+                    <select
+                      id="type"
+                      name="type"
+                      class="form-select validate"
+                      required
+                    >
+                        <option value="add">Adicionar liquidez</option>
+                        <option value="rmv">Remover liquidez</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="changeDollar" class="form-label">
+                      Total em doláres
+                    </label>
+                    <div class="input-group">
+                        <input
+                        type="number"
+                        id="changeDollar"
+                        name="changeDollar"
+                        class="form-control validate"
+                        required
+                        placeholder="Quantidade em dolares"
+                        step="0.0000000001"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    id="next-liquid-step-0"
+                    type="button"
+                    class="btn btn-secondary"
+                  >
+                    Ir para tokens
+                  </button>
+                </div>
+              </div>
+
+              <div id="liquid-step-1" class="step">
+                <div class="card p-3">
+                  <div class="mb-3">
+                    <label for="changeCurrency1" class="form-label">
+                      <span id="token1">XXX</span>
+                      <span id="action1">removidos</span>
+                    </label>
+                    <div class="input-group">
+                        <input
+                        type="number"
+                        id="changeCurrency1"
+                        name="changeCurrency1"
+                        class="form-control validate"
+                        required
+                        placeholder="Quantidade de tokens"
+                        step="0.0000000001"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="changeCurrency2" class="form-label">
+                      <span id="token2">XXX</span>
+                      <span id="action2">removidos</span>
+                    </label>
+                    <div class="input-group">
+                        <input
+                        type="number"
+                        id="changeCurrency2"
+                        name="changeCurrency2"
+                        class="form-control validate"
+                        required
+                        placeholder="Quantidade de tokens"
+                        step="0.0000000001"
+                        min="0"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    id="saveLiquid"
+                    type="button"
+                    class="btn btn-secondary"
+                  >
+                    Salvar edição
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <footer class="text-center p-3 mt-5">
@@ -488,8 +610,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-      function validateStep(stepNumber) {
-        const step = document.getElementById(`step-${stepNumber}`);
+      function validateStep(stepNumber, prefix = '') {
+        const step = document.getElementById(`${prefix}step-${stepNumber}`);
         const inputs = step.querySelectorAll(".validate");
         let isValid = true;
 
@@ -506,7 +628,7 @@
         return isValid;
       }
 
-      function updateStep(currentStep) {
+      function updateStep(currentStep, prefix = '') {
         // Esconde todas as etapas
         const steps = document.querySelectorAll(".step");
         steps.forEach((step) => {
@@ -515,7 +637,7 @@
 
         // Exibe a etapa atual
         const currentStepElement = document.getElementById(
-          `step-${currentStep}`
+          `${prefix}step-${currentStep}`
         );
         currentStepElement.classList.add("active");
       }
@@ -570,6 +692,17 @@
           if (validateStep(3)) {
             currentStep = 4;
             updateStep(currentStep);
+          }
+        });
+
+        document.getElementById("next-liquid-step-0").addEventListener("click", () => {
+          if (validateStep(0, 'liquid-')) {
+            currentStep = 1;
+            updateStep(currentStep, 'liquid-');
+
+            console.log(document.getElementById('type').value);
+            document.getElementById('action1').innerText = document.getElementById('type').value === 'add' ? 'adicionados' : 'removidos';
+            document.getElementById('action2').innerText = document.getElementById('type').value === 'add' ? 'adicionados' : 'removidos';
           }
         });
 
