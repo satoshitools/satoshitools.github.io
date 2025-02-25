@@ -264,7 +264,7 @@ async function addPoolToList(poolData, index, priceData) {
         </div>
         <div class="text-start" style="width: 15%">
             <p class="mb-1 fw-bold">Tokens Atuais</p>
-            <div ${getInputIcon(poolData.tokens1 - poolData.currentTokens1)}>
+            <div ${getInputIcon(entryTokens1 - poolData.currentTokens1)}>
                 <input
                 type="number"
                 class="form-control form-control-sm mb-1"
@@ -275,7 +275,7 @@ async function addPoolToList(poolData, index, priceData) {
                 ${poolData.status ? "" : "disabled"}
                 />
             </div>
-            <div ${getInputIcon(poolData.tokens2 - poolData.currentTokens2)}>
+            <div ${getInputIcon(entryTokens2 - poolData.currentTokens2)}>
                 <input
                 type="number"
                 class="form-control form-control-sm"
