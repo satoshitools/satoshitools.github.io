@@ -217,14 +217,14 @@ async function addPoolToList(poolData, index, priceData) {
             </p>
         </div>
         <div class="text-start" style="width: 25%">
-            <p class="mb-0 d-flex justify-content-between eye_handler">
+            <p class="mb-0 d-flex justify-content-between">
                 <span class="fw-bold">Início:</span>
                 <span>${startDate.toLocaleDateString(
                   "pt-BR"
                 )} (${diffDays} dias)</span>
             </p>
 
-            <p class="mb-0 d-flex justify-content-between eye_handler">
+            <p class="mb-0 d-flex justify-content-between">
                 <span class="fw-bold">Investido:</span>
                 <span>$${totalEntry.toFixed(2)}</span>
             </p>
@@ -358,7 +358,8 @@ async function addPoolToList(poolData, index, priceData) {
             ? `<div class="d-flex">
                     <span class="start">
                     Iniciou com
-                    <b>${poolData.tokens1} ${poolData.currency1.symbol}</b> e <b>${poolData.tokens2} ${poolData.currency2.symbol}</b>
+                    <b>${poolData.tokens1} <i class="eye_handler">${poolData.currency1.symbol}</i></b> e
+                    <b>${poolData.tokens2} <i class="eye_handler">${poolData.currency2.symbol}</i></b>
                     no dia
                     ${new Date(poolData.startDate).toLocaleDateString('pt-BR')} no total de
                     $${parseFloat(poolData.dollars).toFixed(2)} dolares, pagando $${parseFloat(poolData.fee).toFixed(2)} em taxas
@@ -382,7 +383,8 @@ async function addPoolToList(poolData, index, priceData) {
 
                 <span>
                   ${change.type == 'add' ? 'Adicionou' : 'Removeu'}
-                  <b>${change.tokens1} ${poolData.currency1.symbol}</b> e <b>${change.tokens2} ${poolData.currency2.symbol}</b>
+                  <b>${change.tokens1} <i class="eye_handler">${poolData.currency1.symbol}</i></b> e
+                  <b>${change.tokens2} <i class="eye_handler">${poolData.currency2.symbol}</i></b>
                   no dia
                   ${new Date(change.date).toLocaleDateString('pt-BR')} no total de
                   $${parseFloat(change.dollar).toFixed(2)} dolares
@@ -398,7 +400,7 @@ async function addPoolToList(poolData, index, priceData) {
 
   window.poolList.appendChild(poolElement);
 
-  return { pnl, poolCurrentAssets };
+  return { pnl, poolCurrentAssets, totalEntry };
 }
 
 function addUpdatesInputListeners(poolElement) {
@@ -459,6 +461,7 @@ async function loadPools(status = null) {
 
   window.poolList.innerHTML = "";
   let totalPool = 0;
+  let entryTotal = 0;
   let currentTotal = 0;
 
   for (let index = 0; index < pools.length; index++) {
@@ -468,12 +471,20 @@ async function loadPools(status = null) {
       window.priceData
     );
     totalPool += poolValue.pnl;
+    entryTotal += poolValue.totalEntry;
     currentTotal += poolValue.poolCurrentAssets;
   }
-  document.getElementById("totalPool").innerHTML =
-    totalPool > 0
-      ? `Resumo: $${currentTotal.toFixed(2)} (<span class="text-success">▲ $${totalPool.toFixed(2)}</span>)`
-      : `Resumo: $${currentTotal.toFixed(2)} (<span class="text-danger">▼ $${totalPool.toFixed(2)}</span>)`;
+
+    document.getElementById("totalPool").innerHTML =
+        totalPool > 0
+            ? `Entrada: $${entryTotal.toFixed(2)} |
+         Atual: $${currentTotal.toFixed(2)} |
+         PnL: <span class="text-success">▲ $${totalPool.toFixed(2)}</span>
+         (${((totalPool / currentTotal) * 100).toFixed(2)}%)`
+            : `Entrada: $${entryTotal.toFixed(2)} |
+         Atual: $${currentTotal.toFixed(2)} |
+         PnL: <span class="text-danger">▼ $${totalPool.toFixed(2)}</span>
+         (${((totalPool / currentTotal) * 100).toFixed(2)}%)`;
 
   setTimeout(() => {
     const tooltipTriggerList = Array.from(
