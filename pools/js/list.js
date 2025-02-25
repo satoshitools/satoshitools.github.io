@@ -167,7 +167,7 @@ async function addPoolToList(poolData, index, priceData) {
             ${
               poolData.url
                 ? `<a
-                class="btn btn-sm btn-outline-secondary pool-site"
+                class="btn btn-sm  pool-site"
                 href="https://${poolData.url
                   .replace("https://", "")
                   .replace("http://", "")}"
@@ -373,7 +373,7 @@ async function addPoolToList(poolData, index, priceData) {
             return `
               <div class="d-flex">
                 <button
-                  class="btn btn-sm btn-outline-danger delete-pool"
+                  class="btn btn-sm delete-pool"
                   onclick="deleteChange(${index}, ${i})"
                   data-bs-toggle="tooltip"
                   title="Excluir mudança"

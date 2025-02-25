@@ -335,11 +335,13 @@ div[data-down] {
 
 .pool-changes > div {
     padding: 4px 10px;
+    align-items: center;
 }
 
 .pool-changes span {
     font-size: 12px;
-    padding-left: 14px;
+    padding-left: 12px;
+    line-height: 11px;
 }
 
 .pool-changes span.start {
@@ -353,6 +355,7 @@ div[data-down] {
     width: 20px;
     display: flex;
     justify-content: center;
+    padding-left: 16px;
 }
 
 hr {
