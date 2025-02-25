@@ -354,20 +354,22 @@ async function addPoolToList(poolData, index, priceData) {
     </div>
     ${(poolData.changes || []).length > 0 ? '<hr>' : ''}
     <div class="pool-changes">
+        ${(poolData.changes || []).length > 0
+            ? `<div class="d-flex">
+                    <span class="start">
+                    Iniciou com
+                    <b>${poolData.tokens1} ${poolData.currency1.symbol}</b> e <b>${poolData.tokens2} ${poolData.currency2.symbol}</b>
+                    no dia
+                    ${new Date(poolData.startDate).toLocaleDateString('pt-BR')} no total de
+                    $${parseFloat(poolData.dollars).toFixed(2)} dolares, pagando $${parseFloat(poolData.fee).toFixed(2)} em taxas
+                    </span>
+                </div>`
+            : ''
+        }
         ${
           poolData.changes
           ? poolData.changes.map((change, i) => {
             return `
-               <div class="d-flex">
-                <span class="start">
-                  Iniciou com
-                  <b>${poolData.tokens1} ${poolData.currency1.symbol}</b> e <b>${poolData.tokens2} ${poolData.currency2.symbol}</b>
-                  no dia
-                  ${new Date(poolData.startDate).toLocaleDateString('pt-BR')} no total de
-                  $${parseFloat(poolData.dollars).toFixed(2)} dolares, pagando $${parseFloat(poolData.fee).toFixed(2)} em taxas
-                </span>
-              </div>
-
               <div class="d-flex">
                 <button
                   class="btn btn-sm btn-outline-danger delete-pool"
@@ -641,7 +643,7 @@ document.getElementById("saveLiquid").addEventListener("click", function (e) {
   }
   pool.changes.push({
     type: document.getElementById('type').value,
-    date: new Date().toString(),
+    date: document.getElementById('changeDate').value + ' 00:00:01',
     dollar: document.getElementById('changeDollar').value,
     tokens1: parseFloat(document.getElementById('changeCurrency1').value),
     tokens2: parseFloat(document.getElementById('changeCurrency2').value)

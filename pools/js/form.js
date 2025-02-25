@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Coleta os dados do formulário
     const poolData = {
       status: true,
-      startDate: document.getElementById("startDate").value,
+      startDate: document.getElementById("startDate").value + ' 00:00:01',
       url: document.getElementById("url").value,
       currency1: {
         name: currency1Input.value,
