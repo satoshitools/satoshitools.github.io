@@ -474,17 +474,31 @@ async function loadPools(status = null) {
     entryTotal += poolValue.totalEntry;
     currentTotal += poolValue.poolCurrentAssets;
   }
+    
+    const valr = currentTotal - entryTotal;
+    const all = currentTotal - entryTotal + totalPool;
 
     document.getElementById("totalPool").innerHTML =
         totalPool > 0
             ? `Entrada: $${entryTotal.toFixed(2)} |
          Atual: $${currentTotal.toFixed(2)} |
          PnL: <span class="text-success">▲ $${totalPool.toFixed(2)}</span>
-         (${((totalPool / currentTotal) * 100).toFixed(2)}%)`
+         (${((totalPool / currentTotal) * 100).toFixed(2)}%) |
+         Val: <span class="${valr > 0 ? 'text-success' : 'text-danger'}">${valr > 0 ? '▲' : '▼'} $${(valr).toFixed(2)}</span>
+         (${(((valr) / entryTotal) * 100).toFixed(2)}%) |
+         Tot: <span class="${all > 0 ? 'text-success' : 'text-danger'}">${all > 0 ? '▲' : '▼'} $${(all).toFixed(2)}</span>
+         (${(((all) / entryTotal) * 100).toFixed(2)}%)
+        `
             : `Entrada: $${entryTotal.toFixed(2)} |
          Atual: $${currentTotal.toFixed(2)} |
          PnL: <span class="text-danger">▼ $${totalPool.toFixed(2)}</span>
-         (${((totalPool / currentTotal) * 100).toFixed(2)}%)`;
+         (${((totalPool / currentTotal) * 100).toFixed(2)}%) |
+         Val: <span class="${valr > 0 ? 'text-success' : 'text-danger'}">${valr > 0 ? '▲' : '▼'} $${(valr).toFixed(2)}</span>
+         (${(((valr) / entryTotal) * 100).toFixed(2)}%) |
+         Tot: <span class="${all > 0 ? 'text-success' : 'text-danger'}">${all > 0 ? '▲' : '▼'} $${(all).toFixed(2)}</span>
+         (${(((all) / entryTotal) * 100).toFixed(2)}%)
+         
+         `;
 
   setTimeout(() => {
     const tooltipTriggerList = Array.from(
